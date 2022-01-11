@@ -6,7 +6,7 @@
 #include <list>
 #include <sstream>
 #include <fstream>
-
+#include <iostream>
 
 namespace MyLogger
 {
@@ -20,12 +20,13 @@ namespace MyLogger
     private:
         const char *m_file = nullptr; //文件名
         int32_t m_line = 0;           //行号
-        unit32_t m_elapse = 0;        //程序启动开始到现在的毫秒数
+        uint32_t m_elapse = 0;        //程序启动开始到现在的毫秒数
         uint32_t m_threadId = 0;      //线程id
         uint32_t m_fiberId = 0;       //协程id
         uint64_t m_time;              //时间戳
         std::string m_content;
     };
+
     class LogLevel
     {
     public:
@@ -39,18 +40,7 @@ namespace MyLogger
         };
     };
 
-    //日志输出地
-    class LogAppender
-    {
-    public:
-        typedef std::shared_ptr<LogAppender> ptr;
-        virtual ~LogAppender() {}
-        virtual void log(LogLevel::Level level, const LogEvent::ptr &event) = 0;
-
-    private:
-        LogLevel::Level m_level;
-    };
-
+    // 日志格式器
     class LogFormater
     {
     public:
@@ -58,6 +48,23 @@ namespace MyLogger
         std::string format(LogEvent::ptr event);
 
     private:
+    };
+
+    //日志输出地
+    class LogAppender
+    {
+    public:
+        typedef std::shared_ptr<LogAppender> ptr;
+        virtual ~LogAppender() {}
+        // virtual void log(LogLevel::Level level, const LogEvent::ptr &event) = 0;
+        virtual void log(LogLevel::Level level, LogEvent::ptr event) = 0;
+        void setFormatter(LogFormater::ptr);
+
+        LogFormater::ptr getFormatter() const { return m_formatter; }
+
+    protected:
+        LogLevel::Level m_level;
+        LogFormater::ptr m_formatter;
     };
 
     // 日志器
@@ -80,7 +87,7 @@ namespace MyLogger
         LogLevel::Level getLevel() const { return m_level; }
         void setLevel(LogLevel::Level val) { m_level = val; }
 
-    private:
+    protected:
         std::string m_name;                      //日志名称
         LogLevel::Level m_level;                 //日志级别
         std::list<LogAppender::ptr> m_appenders; //Appender集合
@@ -100,10 +107,13 @@ namespace MyLogger
     {
     public:
         typedef std::shared_ptr<FileLogAppender> ptr;
-        FileLogAppender(const std::string& filename);
+        FileLogAppender(const std::string &filename);
         void log(LogLevel::Level level, LogEvent::ptr event) override;
+
+        bool reopen();
+
     private:
-        std::string m_name;
+        std::string m_filename;
         std::ofstream m_filestream;
     };
 };
