@@ -7,6 +7,7 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 namespace MyLogger
 {
@@ -41,13 +42,27 @@ namespace MyLogger
     };
 
     // 日志格式器
-    class LogFormater
+    class LogFormatter
     {
     public:
-        typedef std::shared_ptr<LogFormater> ptr;
+        typedef std::shared_ptr<LogFormatter> ptr;
+        LogFormatter(const std::string &pattern);
         std::string format(LogEvent::ptr event);
 
     private:
+        class FormatItem
+        {
+        public:
+            typedef std::shared_ptr<LogFormatter> ptr;
+            virtual ~FormatItem() {}
+            virtual void format(std::ofstream& os, LogEvent::ptr event) = 0;
+        };
+        void init();
+
+    private:
+        std::string m_pattern;
+        std::vector<FormatItem::ptr> m_items;
+
     };
 
     //日志输出地
@@ -58,13 +73,13 @@ namespace MyLogger
         virtual ~LogAppender() {}
         // virtual void log(LogLevel::Level level, const LogEvent::ptr &event) = 0;
         virtual void log(LogLevel::Level level, LogEvent::ptr event) = 0;
-        void setFormatter(LogFormater::ptr);
+        void setFormatter(LogFormatter::ptr);
 
-        LogFormater::ptr getFormatter() const { return m_formatter; }
+        LogFormatter::ptr getFormatter() const { return m_formatter; }
 
     protected:
         LogLevel::Level m_level;
-        LogFormater::ptr m_formatter;
+        LogFormatter::ptr m_formatter;
     };
 
     // 日志器

@@ -81,4 +81,9 @@ namespace MyLogger
 
     // void log(LogLevel::Level level, LogEvent::ptr event) override;
 
+    LogFormatter::LogFormatter(const std::string &pattern) : m_pattern(pattern)
+    {
+    }
+    void LogFormatter::init() {}
+
 };
