@@ -80,10 +80,26 @@ namespace MyLogger
     }
 
     // void log(LogLevel::Level level, LogEvent::ptr event) override;
+    std::string LogFormatter::format(LogEvent::ptr event)
+    {
+        std::stringstream ss;
+        for (auto &i : m_items)
+        {
+            i->format(ss, event);
+        }
+        return ss.str();
+    }
 
     LogFormatter::LogFormatter(const std::string &pattern) : m_pattern(pattern)
     {
     }
-    void LogFormatter::init() {}
+    void LogFormatter::init() {
+        std::vector<std::pair<std::string, int>> vec;
+        for(size_t i =0; i< m_pattern.size(); i++){
+            if(m_pattern[i] == '%'){
+                if
+            }
+        }
+    }
 
 };

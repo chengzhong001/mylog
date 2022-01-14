@@ -53,7 +53,7 @@ namespace MyLogger
         class FormatItem
         {
         public:
-            typedef std::shared_ptr<LogFormatter> ptr;
+            typedef std::shared_ptr<FormatItem> ptr;
             virtual ~FormatItem() {}
             virtual void format(std::ofstream& os, LogEvent::ptr event) = 0;
         };
